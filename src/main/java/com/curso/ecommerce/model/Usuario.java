@@ -1,7 +1,20 @@
 package com.curso.ecommerce.model;
 
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "usuarios")
 public class Usuario 
 {
+	@Id 
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String nombre;
 	private String username;
@@ -11,9 +24,27 @@ public class Usuario
 	private String tipo;//hacer referencia al tipo de usuario que tiene la aplicacion administrador o usuario
 	private String password;
 	
+	@OneToMany(mappedBy = "usuario")
+	private List<Producto> producto;//variable 	que necesitaremos mas adelante para obtener una lista de productos para un usuario
+	@OneToMany(mappedBy = "usuario")
+	private List <Orden> ordenes;//variable que necesitaremos para obtener una lista de cuantas ordenes tiene un usuario
+	 
 	public Usuario() {
 		
 	}
+	public Usuario(int id, String nombre, String username, String email, String direccion, String telefono, String tipo,
+			String password) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.username = username;
+		this.email = email;
+		this.direccion = direccion;
+		this.telefono = telefono;
+		this.tipo = tipo;
+		this.password = password;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -62,17 +93,14 @@ public class Usuario
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public Usuario(int id, String nombre, String username, String email, String direccion, String telefono, String tipo,
-			String password) {
-		super();
-		this.id = id;
-		this.nombre = nombre;
-		this.username = username;
-		this.email = email;
-		this.direccion = direccion;
-		this.telefono = telefono;
-		this.tipo = tipo;
-		this.password = password;
+	
+	
+	
+	public List<Producto> getProducto() {
+		return producto;
+	}
+	public void setProducto(List<Producto> producto) {
+		this.producto = producto;
 	}
 	@Override
 	public String toString() {
