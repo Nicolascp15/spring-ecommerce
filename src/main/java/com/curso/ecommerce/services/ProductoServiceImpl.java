@@ -21,18 +21,15 @@ public class ProductoServiceImpl implements ProductoService
 	{
 		return productoRepository.save(producto);
 	}
-
 	@Override
 	public Optional<Producto> get(int id) 
 	{
 		return productoRepository.findById(id);
 	}
-
 	@Override
 	public void update(Producto producto) 
 	{
 		//el save en jpa se comporta de manera diferente,si no encuentra el id creara el objeto si no lo actualiza
-		
 		productoRepository.save(producto);
 	}
 
