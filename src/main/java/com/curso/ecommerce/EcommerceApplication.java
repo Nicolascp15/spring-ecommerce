@@ -2,8 +2,9 @@ package com.curso.ecommerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+@SpringBootApplication(scanBasePackages = "com.curso.ecommerce")
+@EntityScan("com.curso.ecommerce.model")
 public class EcommerceApplication {
 
 	public static void main(String[] args) {
