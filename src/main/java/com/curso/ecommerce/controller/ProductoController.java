@@ -70,7 +70,7 @@ public class ProductoController {
 	//metodo actualizar el objeto
 	@PostMapping("/update")
 	public String update(Producto producto)
-	{
+	{ 
 		productoService.update(producto);
 		return "redirect:/productos";
 	}
