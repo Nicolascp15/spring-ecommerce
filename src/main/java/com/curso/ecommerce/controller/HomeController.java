@@ -1,5 +1,7 @@
 package com.curso.ecommerce.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.curso.ecommerce.model.DetalleOrden;
+import com.curso.ecommerce.model.Orden;
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.services.ProductoService;
 
@@ -24,6 +28,8 @@ public class HomeController
 	private final Logger log = LoggerFactory.getLogger(HomeController.class);//variable log para hacer pruebas por consola
 	@Autowired
 	private ProductoService productoService;//variable para obtener los productos de la BBDD y mostrarlos al usuario
+	List<DetalleOrden>  detalles = new ArrayList <DetalleOrden> (); //para almacenar los detalles de la orden en el carrito
+	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
 	public String home (Model model)
 	{
@@ -48,9 +54,15 @@ public class HomeController
 	//peticion tipo postmapping para redireccionar al carrito
 	
 	@PostMapping("/cart")
-	public String addCart() {
-	  
+	public String addCart(@RequestParam Integer id, @RequestParam Integer cantidad) 
+	{
+		
+	    DetalleOrden detalleOrden = new DetalleOrden();
+	    double sumaTotal = 0;//esta variable es para contar todos los productos que hay en total en el carrito
 	    
+	    Optional<Producto> optionalProducto = productoService.get(id);
+	    log.info("Producto añadido : {}", optionalProducto.get());
+	    log.info("Cantidad : {}",cantidad);
 	    return "usuario/carrito"; 
 	}
 
