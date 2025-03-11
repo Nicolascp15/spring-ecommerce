@@ -34,9 +34,10 @@
       </h1>
 
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-        <li class="breadcrumb-item active">Carrito</li>
+        <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li> 
+        <li class="breadcrumb-item active">Carrito</li> 
       </ol>
+      
 
       <!-- Blog Post -->
       <div class="card mb-4">
@@ -70,7 +71,7 @@
 
             <ul class="list-group">
               <li class="list-group-item"><h5 th:text="${orden.total}"></h5></li>
-              <a href="resumenorden.html" class="btn btn-dark">Ver Orden</a>
+              <a th:href="@{/order}" class="btn btn-dark">Ver Orden</a>
             </ul>
           </div>
 

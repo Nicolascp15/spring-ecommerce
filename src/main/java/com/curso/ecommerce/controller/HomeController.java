@@ -122,7 +122,7 @@ public class HomeController
 	    
 		return "usuario/carrito";
 	}
-	//
+	//metodo que nos redirecciona al carrito desde el home
 	@GetMapping("/getCart")
 	public String getCart(Model model)
 	{
@@ -133,7 +133,14 @@ public class HomeController
 		model.addAttribute("orden", orden);
 		return "/usuario/carrito";
 	}
-
+	
+	@GetMapping("/order")
+	public String order()
+	{
+		return "usuario/resumenorden";
+		
+	}
+	
 	
 	
 }
