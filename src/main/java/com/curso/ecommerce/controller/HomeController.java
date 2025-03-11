@@ -54,15 +54,32 @@ public class HomeController
 	//peticion tipo postmapping para redireccionar al carrito
 	
 	@PostMapping("/cart")
-	public String addCart(@RequestParam Integer id, @RequestParam Integer cantidad) 
+	public String addCart(@RequestParam Integer id, @RequestParam Integer cantidad,Model model) 
 	{
 		
 	    DetalleOrden detalleOrden = new DetalleOrden();
 	    double sumaTotal = 0;//esta variable es para contar todos los productos que hay en total en el carrito
+	    Producto producto = new Producto();
 	    
 	    Optional<Producto> optionalProducto = productoService.get(id);
 	    log.info("Producto añadido : {}", optionalProducto.get());
 	    log.info("Cantidad : {}",cantidad);
+	    producto = optionalProducto.get();
+	    
+	    detalleOrden.setCantidad(cantidad);
+	    detalleOrden.setPrecio(producto.getPrecio());
+	    detalleOrden.setNombre(producto.getNombre()); 
+	    detalleOrden.setTotal(producto.getPrecio()*cantidad);
+	    detalleOrden.setProducto(producto);//clave foranea que tenemos para detalleOrden
+	    
+	    detalles.add(detalleOrden);//enviamos los detalles a la lista para hacerlas visibles luego en el carrito
+	    
+	    sumaTotal= detalles.stream().mapToDouble(dt->dt.getTotal()).sum();
+	    orden.setTotal(sumaTotal);
+	    model.addAttribute("cart", detalles);
+	    model.addAttribute("orden", orden);
+	    
+	    
 	    return "usuario/carrito"; 
 	}
 
