@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.curso.ecommerce.model.DetalleOrden;
 import com.curso.ecommerce.model.Orden;
 import com.curso.ecommerce.model.Producto;
+import com.curso.ecommerce.model.Usuario;
+import com.curso.ecommerce.services.IUsuarioService;
 import com.curso.ecommerce.services.ProductoService;
 
 //esta clase tendra la logica para mostrar todos los productos al usuario
@@ -28,6 +30,8 @@ public class HomeController
 	private final Logger log = LoggerFactory.getLogger(HomeController.class);//variable log para hacer pruebas por consola
 	@Autowired
 	private ProductoService productoService;//variable para obtener los productos de la BBDD y mostrarlos al usuario
+	@Autowired
+	private IUsuarioService usuarioService;//para obtener usuarios
 	List<DetalleOrden>  detalles = new ArrayList <DetalleOrden> (); //para almacenar los detalles de la orden en el carrito
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
@@ -135,8 +139,13 @@ public class HomeController
 	}
 	
 	@GetMapping("/order")
-	public String order()
+	public String order(Model model)
 	{
+		Usuario usuario = usuarioService.findbyId(1).get();//se cambiara posteriormente cuando se haga las pruebas de seguridad del Loggin se pone 1 para que no de error
+		model.addAttribute("cart", detalles);
+		model.addAttribute("orden", orden);
+		model.addAttribute("usuario", usuario);
+		
 		return "usuario/resumenorden";
 		
 	}
