@@ -1,6 +1,7 @@
 package com.curso.ecommerce.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,8 @@ import com.curso.ecommerce.model.DetalleOrden;
 import com.curso.ecommerce.model.Orden;
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
+import com.curso.ecommerce.services.IDetalleOrdenService;
+import com.curso.ecommerce.services.IOrdenService;
 import com.curso.ecommerce.services.IUsuarioService;
 import com.curso.ecommerce.services.ProductoService;
 
@@ -33,6 +36,10 @@ public class HomeController
 	@Autowired
 	private IUsuarioService usuarioService;//para obtener usuarios
 	List<DetalleOrden>  detalles = new ArrayList <DetalleOrden> (); //para almacenar los detalles de la orden en el carrito
+	@Autowired
+	private IOrdenService ordenService;//para obtener el metodo que genera el codigo de la ordem 00000000010
+	@Autowired 
+	private IDetalleOrdenService detalleOrdenService;//para guardar las detalles de las ordenes
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
 	public String home (Model model)
@@ -148,6 +155,29 @@ public class HomeController
 		
 		return "usuario/resumenorden";
 		
+	}
+	
+	@GetMapping("/saveOrder")
+	public String saveOrder()//metodo para agregar orden al usuario que ha hecho el pedido
+	{
+		Date  fechaCreacion = new Date ();  //poder obtener la fecha actual y poder guardar la fecha de la orden que se creo
+		orden.setFechaCreacion(fechaCreacion);
+		orden.setNumero(ordenService.generarNumeroOrden());
+		//usuario
+		Usuario usuario = usuarioService.findbyId(1).get();
+		orden.setUsuario(usuario);
+		ordenService.save(orden);
+		//guardardetalles
+		for(DetalleOrden dt : detalles)
+		{
+			dt.setOrden(orden);
+			detalleOrdenService.save(dt);	
+		}
+		//limpiar lista y orden
+		orden = new Orden();//con esta ya estariamos limpiando la orden de arriba
+		detalles.clear();
+		
+		return"redirect:/";
 	}
 	
 	

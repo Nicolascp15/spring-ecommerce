@@ -37,37 +37,29 @@ public class OrdenServiceImpl implements IOrdenService
 		
 		List <Integer> numeros = new ArrayList <Integer>();
 		
-		ordenes.stream().forEach(o -> numeros.add(Integer.parseInt(o.getNumero())));
+		// Convertir los números de orden a enteros, ignorando valores vacíos o no numéricos
+	    for (Orden o : ordenes) {
+	        if (o.getNumero() != null && !o.getNumero().trim().isEmpty()) {
+	            try {
+	                numeros.add(Integer.parseInt(o.getNumero().trim()));
+	            } catch (NumberFormatException e) {
+	                System.out.println("Número inválido en la base de datos: " + o.getNumero());
+	            }
+	        }
+	    }
+
+	    // Determinar el próximo número de orden
+	    if (numeros.isEmpty()) {
+	        numero = 1;
+	    } else {
+	        numero = numeros.stream().max(Integer::compare).orElse(0) + 1;
+	    }
+
+	    // Formatear el número con ceros a la izquierda (10 dígitos)
+	    numeroConcatenado = String.format("%010d", numero);
+
+	    return numeroConcatenado;
 		
-		if(ordenes.isEmpty())
-		{
-			numero=1;
-		}
-		else
-		{
-			numero = numeros.stream().max(Integer::compare).get();
-			numero++;
-		}
-		
-		
-		if(numero < 10)//0000000001000
-		{
-			numeroConcatenado ="000000000"+String.valueOf(numero);
-		}
-		else if (numero < 100)
-		{
-			numeroConcatenado = "00000000"+String.valueOf(numero);
-		}
-		else if (numero < 1000)
-		{
-			numeroConcatenado = "0000000"+String.valueOf(numero);
-		}
-		else if (numero < 10000)
-		{
-			numeroConcatenado = "000000"+String.valueOf(numero);
-		}
-		
-		return "";
 	}
 	
 

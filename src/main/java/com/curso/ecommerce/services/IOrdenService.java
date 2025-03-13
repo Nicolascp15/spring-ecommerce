@@ -8,5 +8,6 @@ public interface IOrdenService
 {
 	Orden save(Orden orden);
 	List<Orden>findAll(); //obtener un loistado de ordenes
+	String generarNumeroOrden();
 	
 }
