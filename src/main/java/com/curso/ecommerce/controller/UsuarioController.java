@@ -43,7 +43,7 @@ public class UsuarioController
 		
 		return "redirect:/";
 	}
-	
+	//metodo para mostrar al ususario la parte del login
 	@GetMapping ("/login")
 	public String login()
 	{
@@ -53,23 +53,23 @@ public class UsuarioController
 	@PostMapping("/acceder")//primero va a ser tipo post para hacer pruebas
 	public String acceder(Usuario usuario,HttpSession session)
 	{
-		logger.info("Accesos : {}",usuario);
-		Optional <Usuario> user =usuarioService.findByEmail(usuario.getEmail());
-		//logger.info("Usuario de db:{}",user.get());
+		logger.info("Accesos: {}",usuario); 
 		
-		if(user.isPresent())
+		Optional <Usuario> user = usuarioService.findByEmail(usuario.getEmail());//obetener email del ususario
+		//logger.info("Usuario de db: {}",user.get());//visualizar usuario
+		
+		if(user.isPresent())//si hay un registro con ese email
 		{
-			session.setAttribute("idusuario", user.get().getId());
-			if(user.get().getTipo().equals("ADMIN"))
+			session.setAttribute("idusuario", user.get().getId());//le pasaremos el id del usuario para que este presente toda la session
+			if(user.get().getTipo().equals("ADMIN"))//validacion para entrar como ADMIN O USER
 			{
-				return "redirect:/administrador";
-			}else
-			{
-				return "redirect:/";
+				return "redirect:/administrador";//si el usuario es de tipo ADMIN  que nos devuelva al administrador
 			}
-			
-		}
-		else 
+			else// en caso de que no sea ADMIN que nos mande hacia la pagina de la raiz 
+			{
+				return "redirect:/"; 
+			}
+		}else//si no existe que lance mensaje
 		{
 			logger.info("Usuario no existe");
 		}

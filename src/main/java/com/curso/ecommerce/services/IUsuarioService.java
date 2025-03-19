@@ -10,5 +10,5 @@ public interface IUsuarioService
 	//metodo para obtener los usuarios de la BBDD
 	Optional<Usuario> findbyId(Integer id);
 	Usuario save (Usuario usuario);
-	Optional <Usuario> findByEmail(String email);
+	Optional <Usuario> findByEmail (String email);
 }
