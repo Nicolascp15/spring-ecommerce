@@ -18,6 +18,9 @@ import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
 import com.curso.ecommerce.services.ProductoService;
 import com.curso.ecommerce.services.UploadFileService;
+import com.curso.ecommerce.services.UsuarioServiceImpl;
+
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller
@@ -28,6 +31,8 @@ public class ProductoController {
 	//declarar la variable service para implementar el guardado  en la base de datos 
 	@Autowired
 	private ProductoService productoService;
+	@Autowired
+	private UsuarioServiceImpl usuarioService;
 	@Autowired
 	private UploadFileService upload;
 	
@@ -46,14 +51,15 @@ public class ProductoController {
 	}
 	
 	@PostMapping("/save")
-	public String save(Producto producto ,@RequestParam("img") MultipartFile file) throws IOException
+	public String save(Producto producto ,@RequestParam("img") MultipartFile file,HttpSession session) throws IOException
 	{
 		//prueba
 		//importante que la clase que queremos vizualizar tenga el metodo ToString() porque si no no se vizualizara
 		LOGGER.info("Este es el objeto producto{}",producto);
 		
-		Usuario u = new Usuario(1,"","","","","","","");
+		Usuario u = usuarioService.findbyId(Integer.parseInt(session.getAttribute("idusuario").toString())).get();
 		producto.setUsuario(u);
+		
 		//imagen
 		if(producto.getId()==null)//esta imagen se añadira a la base de datos siempre cuando el producto no exista
 		{

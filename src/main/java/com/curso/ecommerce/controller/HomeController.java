@@ -2,8 +2,10 @@ package com.curso.ecommerce.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -22,10 +24,13 @@ import com.curso.ecommerce.model.DetalleOrden;
 import com.curso.ecommerce.model.Orden;
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
+import com.curso.ecommerce.repositoy.IDetalleOrdenRepository;
 import com.curso.ecommerce.services.IDetalleOrdenService;
 import com.curso.ecommerce.services.IOrdenService;
 import com.curso.ecommerce.services.IUsuarioService;
 import com.curso.ecommerce.services.ProductoService;
+
+import jakarta.servlet.http.HttpSession;
 
 //esta clase tendra la logica para mostrar todos los productos al usuario
 @Controller
@@ -36,6 +41,8 @@ public class HomeController
 	@Autowired
 	private ProductoService productoService;//variable para obtener los productos de la BBDD y mostrarlos al usuario
 	@Autowired
+	private IDetalleOrdenRepository detalleOrdenRepository;
+	@Autowired
 	private IUsuarioService usuarioService;//para obtener usuarios
 	List<DetalleOrden>  detalles = new ArrayList <DetalleOrden> (); //para almacenar los detalles de la orden en el carrito
 	@Autowired
@@ -44,9 +51,10 @@ public class HomeController
 	private IDetalleOrdenService detalleOrdenService;//para guardar las detalles de las ordenes
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
-	public String home (Model model)
+	public String home (Model model,HttpSession session)
 	{
-
+		//imoresion del log para ver cual es el id del usuario en ese momento
+		log.info("Sesion del usuario: {}",session.getAttribute("idusuario"));
 		model.addAttribute("productos", productoService.findAll());
 		return "usuario/home";
 	}
@@ -148,9 +156,10 @@ public class HomeController
 	}
 	
 	@GetMapping("/order")
-	public String order(Model model)
+	public String order(Model model,HttpSession session)
 	{
-		Usuario usuario = usuarioService.findbyId(1).get();//se cambiara posteriormente cuando se haga las pruebas de seguridad del Loggin se pone 1 para que no de error
+		Usuario usuario = usuarioService.findbyId( Integer.parseInt(session.getAttribute("idusuario").toString()) ).get();//se cambiara posteriormente cuando se haga las pruebas de seguridad del Loggin se pone 1 para que no de error
+		
 		model.addAttribute("cart", detalles);
 		model.addAttribute("orden", orden);
 		model.addAttribute("usuario", usuario);
@@ -158,28 +167,54 @@ public class HomeController
 		return "usuario/resumenorden";
 		
 	}
-	
+	//guardar orden
 	@GetMapping("/saveOrder")
-	public String saveOrder()//metodo para agregar orden al usuario que ha hecho el pedido
-	{
-		Date  fechaCreacion = new Date ();  //poder obtener la fecha actual y poder guardar la fecha de la orden que se creo
-		orden.setFechaCreacion(fechaCreacion);
-		orden.setNumero(ordenService.generarNumeroOrden());
-		//usuario
-		Usuario usuario = usuarioService.findbyId(1).get();
-		orden.setUsuario(usuario);
-		ordenService.save(orden);
-		//guardardetalles
-		for(DetalleOrden dt : detalles)
-		{
-			dt.setOrden(orden);
-			detalleOrdenService.save(dt);	
-		}
-		//limpiar lista y orden
-		orden = new Orden();//con esta ya estariamos limpiando la orden de arriba
-		detalles.clear();
-		
-		return"redirect:/";
+	public String saveOrder(HttpSession session) {
+	    try {
+	        // Verificar si el usuario está en sesión
+	        if (session.getAttribute("idusuario") == null) {
+	            return "redirect:/login"; // Redirige al login si no hay usuario en sesión
+	        }
+
+	        // Obtener el ID del usuario desde la sesión
+	        int idUsuario = Integer.parseInt(session.getAttribute("idusuario").toString());
+	        Usuario usuario = usuarioService.findbyId(idUsuario)
+	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+	        // Inicializar la orden si es necesario
+	        if (orden == null) {
+	            orden = new Orden();
+	        }
+
+	        // Configurar la orden
+	        Date fechaCreacion = new Date();
+	        orden.setFechaCreacion(fechaCreacion);
+	        orden.setNumero(ordenService.generarNumeroOrden());
+	        orden.setUsuario(usuario);
+
+	        // Guardar la orden
+	        ordenService.save(orden);
+
+	        // Guardar los detalles de la orden
+	        if (detalles != null) {
+	            Set<DetalleOrden> detallesUnicos = new HashSet<>(detalles); // Elimina duplicados
+	            for (DetalleOrden dt : detallesUnicos) {
+	                dt.setOrden(orden);
+	                detalleOrdenRepository.save(dt);
+	            }
+	        }
+
+	        // Limpiar la orden y los detalles
+	        orden = new Orden();
+	        if (detalles != null) {
+	            detalles.clear();
+	        }
+
+	        return "redirect:/"; // Redirige a la página de inicio
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "redirect:/error"; // Redirige a una página de error
+	    }
 	}
 	//buscar productos en el buscador
 	@PostMapping("/search")
