@@ -22,7 +22,8 @@
 <body>
 
   <!-- Navigation -->
-  <div th:insert="usuario/template_usuario :: header"></div>
+  <div th:insert="usuario/template_usuario :: header" th:if="${sesion==null}" ></div>
+  <div th:insert="usuario/template_usuario :: header-user" th:unless="${sesion==null}" ></div>
 
   </div>
 

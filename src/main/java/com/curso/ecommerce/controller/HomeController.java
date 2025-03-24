@@ -53,9 +53,11 @@ public class HomeController
 	@GetMapping("/")
 	public String home (Model model,HttpSession session)
 	{
-		//imoresion del log para ver cual es el id del usuario en ese momento
+		//impresion del log para ver cual es el id del usuario en ese momento
 		log.info("Sesion del usuario: {}",session.getAttribute("idusuario"));
 		model.addAttribute("productos", productoService.findAll());
+		//una vez hayamos encontrado todos los productos tenemos que mandar a la vista una variable de sesion para determinar que header vamos a mostrar
+		model.addAttribute("sesion", session.getAttribute("idusuario"));
 		return "usuario/home";
 	}
 	
@@ -145,13 +147,13 @@ public class HomeController
 	}
 	//metodo que nos redirecciona al carrito desde el home
 	@GetMapping("/getCart")
-	public String getCart(Model model)
+	public String getCart(Model model ,HttpSession session)
 	{
-		
-		
-		
 		model.addAttribute("cart", detalles);
 		model.addAttribute("orden", orden);
+		
+		//sesion
+		model.addAttribute("sesion", session.getAttribute("idusuario"));
 		return "/usuario/carrito";
 	}
 	
