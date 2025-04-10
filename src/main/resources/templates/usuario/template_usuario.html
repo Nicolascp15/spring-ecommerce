@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Spring eCommerce</title>
 
-  <!-- Bootstrap core CSS -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/heroic-features.css" rel="stylesheet">
+     <!-- Bootstrap core CSS -->
+     <link th:href="@{/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+
+     <!-- Custom styles for this template -->
+     <link th:href="@{/css/heroic-features.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -49,13 +51,18 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown">
-              <span th:text="${usuario.get().nombre} ?: 'USER'"></span>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span th:text="${usuario.get().nombre} ?: 'USER'">USER</span>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <li><a class="dropdown-item" th:href="@{/usuario/compras}">Compras</a></li>
-              <li><a class="dropdown-item" th:href="@{/getCart}">Carrito</a></li>
-            </ul>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" th:href="@{/compras}">Compras</a>
+              <a class="dropdown-item" th:href="@{/getCart}">Carrito</a>
+            </div>
+          </li>
+          
+              
+          
           </li>
         </ul>
       </div>
@@ -73,8 +80,9 @@
 </div>
 
 <!-- Bootstrap core JavaScript -->
-<script th:src="@{vendor/jquery/jquery.min.js}"></script>
-<script th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
 
 </body>
 </html>

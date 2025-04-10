@@ -11,10 +11,10 @@
   <title>Spring eCommerce</title>
 
   <!-- Bootstrap core CSS -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
 
   <!-- Custom styles for this template -->
-  <link href="css/heroic-features.css" rel="stylesheet">
+  <link th:href="@{/css/heroic-features.css}" rel="stylesheet">
 
 </head>
 
@@ -52,16 +52,12 @@
   </div>
   <!-- /.container -->
 
- <!-- Footer -->
-<div th:replace="~{usuario/template_usuario :: footer}"></div>
+  <!-- Footer -->
+  <div th:replace="~{usuario/template_usuario :: footer}"></div>
 
-  
-  <!-- /.container -->
-</footer>
-
-<!-- Bootstrap core JavaScript -->
-<script th:src="@{vendor/jquery/jquery.min.js}"></script>
-<script th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+  <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
 

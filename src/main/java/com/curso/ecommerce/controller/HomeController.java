@@ -53,13 +53,20 @@ public class HomeController
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
 	    // Impresión del log para ver cuál es el id del usuario en ese momento
-	    log.info("Sesion del usuario: {}", session.getAttribute("idusuario"));
+	    Object idUsuarioObj = session.getAttribute("idusuario");
+	    log.info("Sesion del usuario: {}", idUsuarioObj);
 
-	    // Obtener el id del usuario desde la sesión
-	    int idusuario = (int) session.getAttribute("idusuario");
+	    // Verificar si el idusuario está presente en la sesión
+	    if (idUsuarioObj == null) {
+	        // Redirigir a una página de login si no está presente
+	        return "redirect:/login"; // Cambia "/login" a la ruta que necesites
+	    }
+
+	    // Convertir idusuario a int
+	    int idusuario = (int) idUsuarioObj;
 
 	    // Obtener el objeto Usuario con el idusuario (ejemplo usando un servicio)
-	    Optional<Usuario> usuario = usuarioService.findbyId(idusuario); // Este método debe buscar al usuario en la base de datos
+	    Optional<Usuario> usuario = usuarioService.findbyId(idusuario);
 
 	    // Agregar el objeto usuario al modelo
 	    model.addAttribute("usuario", usuario);
