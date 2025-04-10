@@ -51,15 +51,28 @@ public class HomeController
 	private IDetalleOrdenService detalleOrdenService;//para guardar las detalles de las ordenes
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
-	public String home (Model model,HttpSession session)
-	{
-		//impresion del log para ver cual es el id del usuario en ese momento
-		log.info("Sesion del usuario: {}",session.getAttribute("idusuario"));
-		model.addAttribute("productos", productoService.findAll());
-		//una vez hayamos encontrado todos los productos tenemos que mandar a la vista una variable de sesion para determinar que header vamos a mostrar
-		model.addAttribute("sesion", session.getAttribute("idusuario"));
-		return "usuario/home";
+	public String home(Model model, HttpSession session) {
+	    // Impresión del log para ver cuál es el id del usuario en ese momento
+	    log.info("Sesion del usuario: {}", session.getAttribute("idusuario"));
+
+	    // Obtener el id del usuario desde la sesión
+	    int idusuario = (int) session.getAttribute("idusuario");
+
+	    // Obtener el objeto Usuario con el idusuario (ejemplo usando un servicio)
+	    Optional<Usuario> usuario = usuarioService.findbyId(idusuario); // Este método debe buscar al usuario en la base de datos
+
+	    // Agregar el objeto usuario al modelo
+	    model.addAttribute("usuario", usuario);
+
+	    // Agregar los productos al modelo
+	    model.addAttribute("productos", productoService.findAll());
+
+	    // Agregar el idusuario a la vista para el header
+	    model.addAttribute("sesion", idusuario);
+
+	    return "usuario/home";
 	}
+
 	
 	//metodo que nos va a llevar desde el boton " ver producto" a la vista producto home 
 	@GetMapping("productohome/{id}")
