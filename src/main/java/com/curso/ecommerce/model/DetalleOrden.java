@@ -102,5 +102,25 @@ public class DetalleOrden {
 				+ ", total=" + total + "]";
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (o == null || getClass() != o.getClass()) return false;
+
+	    DetalleOrden that = (DetalleOrden) o;
+
+	    if (producto == null || orden == null || that.producto == null || that.orden == null) return false;
+
+	    return producto.getId() == that.producto.getId()
+	            && orden.getNumero().equals(that.orden.getNumero());
+	}
+
+	@Override
+	public int hashCode() {
+	    if (producto == null || orden == null) return 0;
+	    return (producto.getId() + "_" + orden.getNumero()).hashCode();
+	}
+
+	
 	
 }

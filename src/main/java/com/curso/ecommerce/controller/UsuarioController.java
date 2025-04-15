@@ -52,31 +52,35 @@ public class UsuarioController
 		return "usuario/login";
 	}
 	@PostMapping("/acceder")//primero va a ser tipo post para hacer pruebas
-	public String acceder(Usuario usuario,HttpSession session)
+	public String acceder(Usuario usuario,HttpSession session,Model model)
 	{
-		logger.info("Accesos: {}",usuario); 
 		
-		Optional <Usuario> user = usuarioService.findByEmail(usuario.getEmail());//obetener email del ususario
+		
+		Optional <Usuario> user= usuarioService.findByEmail(usuario.getEmail());//obetener email del ususario
 		//logger.info("Usuario de db: {}",user.get());//visualizar usuario
 		
-		if(user.isPresent())//si hay un registro con ese email
+		logger.info("Accesos: {}", usuario);
+		
+		//logger.info("Usuario de db: {}", user.get());
+		if (user.isPresent()) 
 		{
-			session.setAttribute("idusuario", user.get().getId());//le pasaremos el id del usuario para que este presente toda la session
-			if(user.get().getTipo().equals("ADMIN"))//validacion para entrar como ADMIN O USER
-			{
-				return "redirect:/administrador";//si el usuario es de tipo ADMIN  que nos devuelva al administrador
-			}
-			else// en caso de que no sea ADMIN que nos mande hacia la pagina de la raiz 
-			{
-				return "redirect:/"; 
-			}
-		}else//si no existe que lance mensaje
+			session.setAttribute("idusuario", user.get().getId());
+		
+		if (user.get().getTipo ().equals("ADMIN")) 
 		{
-			logger.info("Usuario no existe");
+			return "redirect: /administrador";
+		}else
+		{
+			return "redirect:/";
+		}
+		}else 
+		{
+		logger.info("Usuario no existe");
+		}
+			return "redirect:/";
 		}
 		
-		return "redirect:/";
-	}
+	
 	//metodo que mostrara en la vista todas las compras que hemos hecho con nuestro usuario 
 	@GetMapping("/compras")	
 	public String obtenerCompras(Model model ,HttpSession session) 

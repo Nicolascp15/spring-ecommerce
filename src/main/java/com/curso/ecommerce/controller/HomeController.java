@@ -52,34 +52,25 @@ public class HomeController
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
-	    // Impresión del log para ver cuál es el id del usuario en ese momento
+	    // Verificar sesión
 	    Object idUsuarioObj = session.getAttribute("idusuario");
-	    log.info("Sesion del usuario: {}", idUsuarioObj);
-
-	    // Verificar si el idusuario está presente en la sesión
 	    if (idUsuarioObj == null) {
-	        // Redirigir a una página de login si no está presente
-	        return "redirect:/login"; // Cambia "/login" a la ruta que necesites
+	        return "redirect:/login";
 	    }
 
-	    // Convertir idusuario a int
 	    int idusuario = (int) idUsuarioObj;
-
-	    // Obtener el objeto Usuario con el idusuario (ejemplo usando un servicio)
-	    Optional<Usuario> usuario = usuarioService.findbyId(idusuario);
-
-	    // Agregar el objeto usuario al modelo
+	    
+	    // Obtener usuario y manejar el Optional correctamente
+	    Usuario usuario = usuarioService.findbyId(idusuario)
+	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+	    
+	    // Pasar el objeto Usuario directamente, no el Optional
 	    model.addAttribute("usuario", usuario);
-
-	    // Agregar los productos al modelo
 	    model.addAttribute("productos", productoService.findAll());
-
-	    // Agregar el idusuario a la vista para el header
 	    model.addAttribute("sesion", idusuario);
 
 	    return "usuario/home";
 	}
-
 	
 	//metodo que nos va a llevar desde el boton " ver producto" a la vista producto home 
 	@GetMapping("productohome/{id}")
@@ -178,66 +169,73 @@ public class HomeController
 	}
 	
 	@GetMapping("/order")
-	public String order(Model model,HttpSession session)
-	{
-		Usuario usuario = usuarioService.findbyId( Integer.parseInt(session.getAttribute("idusuario").toString()) ).get();//se cambiara posteriormente cuando se haga las pruebas de seguridad del Loggin se pone 1 para que no de error
-		
-		model.addAttribute("cart", detalles);
-		model.addAttribute("orden", orden);
-		model.addAttribute("usuario", usuario);
-		
-		return "usuario/resumenorden";
-		
+	public String order(Model model, HttpSession session) {
+	    // Verificar sesión
+	    Object idUsuarioObj = session.getAttribute("idusuario");
+	    if (idUsuarioObj == null) {
+	        return "redirect:/login";
+	    }
+
+	    int idUsuario = Integer.parseInt(idUsuarioObj.toString());
+	    
+	    // Obtener usuario y manejar el Optional correctamente
+	    Usuario usuario = usuarioService.findbyId(idUsuario)
+	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+	    
+	    model.addAttribute("cart", detalles);
+	    model.addAttribute("orden", orden);
+	    model.addAttribute("usuario", usuario);
+	    
+	    return "usuario/resumenorden";
 	}
 	//guardar orden
-	@GetMapping("/saveOrder")
-	public String saveOrder(HttpSession session) {
-	    try {
-	        // Verificar si el usuario está en sesión
-	        if (session.getAttribute("idusuario") == null) {
-	            return "redirect:/login"; // Redirige al login si no hay usuario en sesión
-	        }
-
-	        // Obtener el ID del usuario desde la sesión
-	        int idUsuario = Integer.parseInt(session.getAttribute("idusuario").toString());
-	        Usuario usuario = usuarioService.findbyId(idUsuario)
-	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-	        // Inicializar la orden si es necesario
-	        if (orden == null) {
-	            orden = new Orden();
-	        }
-
-	        // Configurar la orden
-	        Date fechaCreacion = new Date();
-	        orden.setFechaCreacion(fechaCreacion);
-	        orden.setNumero(ordenService.generarNumeroOrden());
-	        orden.setUsuario(usuario);
-
-	        // Guardar la orden
-	        ordenService.save(orden);
-
-	        // Guardar los detalles de la orden
-	        if (detalles != null) {
-	            Set<DetalleOrden> detallesUnicos = new HashSet<>(detalles); // Elimina duplicados
-	            for (DetalleOrden dt : detallesUnicos) {
-	                dt.setOrden(orden);
-	                detalleOrdenRepository.save(dt);
+	 @GetMapping("/saveOrder")
+	    public String saveOrder(HttpSession session) {
+	        try {
+	            if (session.getAttribute("idusuario") == null) {
+	                return "redirect:/login";
 	            }
-	        }
 
-	        // Limpiar la orden y los detalles
-	        orden = new Orden();
-	        if (detalles != null) {
-	            detalles.clear();
-	        }
+	            int idUsuario = Integer.parseInt(session.getAttribute("idusuario").toString());
+	            Usuario usuario = usuarioService.findbyId(idUsuario)
+	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-	        return "redirect:/"; // Redirige a la página de inicio
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return "redirect:/error"; // Redirige a una página de error
+	            if (orden == null) {
+	                orden = new Orden();
+	            }
+
+	            Date fechaCreacion = new Date();
+	            orden.setFechaCreacion(fechaCreacion);
+	            orden.setNumero(ordenService.generarNumeroOrden());
+	            orden.setUsuario(usuario);
+
+	            ordenService.save(orden);
+
+	            if (detalles != null) {
+	                Set<String> productosInsertados = new HashSet<>();
+
+	                for (DetalleOrden dt : detalles) {
+	                    String claveUnica = dt.getProducto().getId() + "_" + orden.getNumero();
+	                    if (!productosInsertados.contains(claveUnica)) {
+	                        dt.setOrden(orden);
+	                        detalleOrdenRepository.save(dt);
+	                        productosInsertados.add(claveUnica);
+	                    }
+	                }
+	            }
+
+	            orden = new Orden();
+	            if (detalles != null) {
+	                detalles.clear();
+	            }
+
+	            return "redirect:/";
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return "redirect:/error";
+	        }
 	    }
-	}
+
 	//buscar productos en el buscador
 	@PostMapping("/search")
 	public String searchProduct(@RequestParam String nombre,Model model)
