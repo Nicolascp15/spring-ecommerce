@@ -1,5 +1,6 @@
 package com.curso.ecommerce.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -8,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.curso.ecommerce.model.Orden;
 import com.curso.ecommerce.model.Usuario;
+import com.curso.ecommerce.services.IOrdenService;
 import com.curso.ecommerce.services.IUsuarioService;
 
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +26,8 @@ public class UsuarioController
 {
 	@Autowired
 	private IUsuarioService usuarioService;
+	@Autowired
+	private IOrdenService ordenservice;
 	
 	private final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
 	
@@ -85,8 +91,33 @@ public class UsuarioController
 	@GetMapping("/compras")	
 	public String obtenerCompras(Model model ,HttpSession session) 
 	{
-		model.addAttribute("sesion", session.getAttribute("idusuario"));
+		 Integer idUsuario = (Integer) session.getAttribute("idusuario");
+
+		    if (idUsuario != null) {
+		        Usuario usuario = usuarioService.findbyId(idUsuario).get(); // o con Optional
+		        List<Orden> ordenes = ordenservice.findByUsuario(usuario);
+		        model.addAttribute("ordenes", ordenes);
+		    }
+
+		    model.addAttribute("sesion", idUsuario);
 		return "usuario/compras";
 	}
 	
+	@GetMapping("/detalle/{id}")
+	public String detalleCompra(@PathVariable Integer id,HttpSession session,Model model)
+	{
+		logger.info("Id de la orden: {}", id);
+
+	    // Buscar la orden por ID
+	    Orden orden = ordenservice.findById(id).orElse(null);
+
+	    if (orden != null) {
+	        model.addAttribute("orden", orden); // Enviamos la orden completa
+	        model.addAttribute("detalles", orden.getDetalle()); // Enviamos los detalles de la orden
+	    }
+
+	    model.addAttribute("sesion", session.getAttribute("idusuario"));//para que no nos de error al validar si la sesion no existe
+	    
+		return "usuario/detallecompra";
+	}
 }
