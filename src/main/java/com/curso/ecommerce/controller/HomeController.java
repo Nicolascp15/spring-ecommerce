@@ -52,25 +52,25 @@ public class HomeController
 	Orden orden = new Orden();//variable que va a almacenar los datos de la orden
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
-	    // Verificar sesión
 	    Object idUsuarioObj = session.getAttribute("idusuario");
 	    if (idUsuarioObj == null) {
-	        return "redirect:/login";
+	        log.info("No hay sesión activa, redirigiendo a login.");
+	        return "redirect:/usuario/login";
 	    }
 
 	    int idusuario = (int) idUsuarioObj;
+	    log.info("ID del usuario en sesión: " + idusuario);
 	    
-	    // Obtener usuario y manejar el Optional correctamente
 	    Usuario usuario = usuarioService.findbyId(idusuario)
 	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-	    
-	    // Pasar el objeto Usuario directamente, no el Optional
+
 	    model.addAttribute("usuario", usuario);
 	    model.addAttribute("productos", productoService.findAll());
 	    model.addAttribute("sesion", idusuario);
 
 	    return "usuario/home";
 	}
+
 	
 	//metodo que nos va a llevar desde el boton " ver producto" a la vista producto home 
 	@GetMapping("productohome/{id}")
@@ -158,15 +158,13 @@ public class HomeController
 	}
 	//metodo que nos redirecciona al carrito desde el home
 	@GetMapping("/getCart")
-	public String getCart(Model model ,HttpSession session)
-	{
-		model.addAttribute("cart", detalles);
-		model.addAttribute("orden", orden);
-		
-		//sesion
-		model.addAttribute("sesion", session.getAttribute("idusuario"));
-		return "/usuario/carrito";
+	public String getCart(Model model, HttpSession session) {
+	    model.addAttribute("cart", detalles);
+	    model.addAttribute("orden", orden);
+	    model.addAttribute("sesion", session.getAttribute("idusuario"));
+	    return "usuario/carrito";
 	}
+
 	
 	@GetMapping("/order")
 	public String order(Model model, HttpSession session) {
@@ -189,52 +187,46 @@ public class HomeController
 	    return "usuario/resumenorden";
 	}
 	//guardar orden
-	 @GetMapping("/saveOrder")
-	    public String saveOrder(HttpSession session) {
-	        try {
-	            if (session.getAttribute("idusuario") == null) {
-	                return "redirect:/login";
-	            }
+	@GetMapping("/saveOrder")
+	public String saveOrder(HttpSession session) {
+	    try {
+	        if (session.getAttribute("idusuario") == null) {
+	            return "redirect:/login";
+	        }
 
-	            int idUsuario = Integer.parseInt(session.getAttribute("idusuario").toString());
-	            Usuario usuario = usuarioService.findbyId(idUsuario)
+	        int idUsuario = Integer.parseInt(session.getAttribute("idusuario").toString());
+	        Usuario usuario = usuarioService.findbyId(idUsuario)
 	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-	            if (orden == null) {
-	                orden = new Orden();
-	            }
+	        Orden orden = (Orden) session.getAttribute("orden");
+	        List<DetalleOrden> detalles = (List<DetalleOrden>) session.getAttribute("detalles");
 
-	            Date fechaCreacion = new Date();
-	            orden.setFechaCreacion(fechaCreacion);
-	            orden.setNumero(ordenService.generarNumeroOrden());
-	            orden.setUsuario(usuario);
-
-	            ordenService.save(orden);
-
-	            if (detalles != null) {
-	                Set<String> productosInsertados = new HashSet<>();
-
-	                for (DetalleOrden dt : detalles) {
-	                    String claveUnica = dt.getProducto().getId() + "_" + orden.getNumero();
-	                    if (!productosInsertados.contains(claveUnica)) {
-	                        dt.setOrden(orden);
-	                        detalleOrdenRepository.save(dt);
-	                        productosInsertados.add(claveUnica);
-	                    }
-	                }
-	            }
-
-	            orden = new Orden();
-	            if (detalles != null) {
-	                detalles.clear();
-	            }
-
-	            return "redirect:/";
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            return "redirect:/error";
+	        if (orden == null || detalles == null || detalles.isEmpty()) {
+	            return "redirect:/usuario/compras"; // O mostrar un mensaje de "carrito vacío"
 	        }
+
+	        orden.setUsuario(usuario);
+	        orden.setFechaCreacion(new Date());
+	        orden.setNumero(ordenService.generarNumeroOrden());
+	        orden.setTotal(detalles.stream().mapToDouble(DetalleOrden::getTotal).sum());
+
+	        ordenService.save(orden);
+
+	        for (DetalleOrden dt : detalles) {
+	            dt.setOrden(orden);
+	            detalleOrdenRepository.save(dt);
+	        }
+
+	        // Limpiar sesión
+	        session.removeAttribute("orden");
+	        session.removeAttribute("detalles");
+
+	        return "redirect:/";
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "redirect:/error";
 	    }
+	}
 
 	//buscar productos en el buscador
 	@PostMapping("/search")

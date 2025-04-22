@@ -74,7 +74,7 @@ public class UsuarioController
 		
 		if (user.get().getTipo ().equals("ADMIN")) 
 		{
-			return "redirect: /administrador";
+			return "redirect:/administrador";
 		}else
 		{
 			return "redirect:/";
@@ -119,5 +119,12 @@ public class UsuarioController
 	    model.addAttribute("sesion", session.getAttribute("idusuario"));//para que no nos de error al validar si la sesion no existe
 	    
 		return "usuario/detallecompra";
+	}
+	//metodo para cerrar sesion 
+	@GetMapping("/cerrar")
+	public String cerrarSesion(HttpSession session)
+	{
+		session.removeAttribute("idusuario");
+		return "redirect:/";
 	}
 }

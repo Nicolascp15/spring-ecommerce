@@ -25,6 +25,8 @@
   <div th:insert="usuario/template_usuario :: header" th:if="${sesion==null}"></div>
   <div th:insert="usuario/template_usuario :: header-user" th:unless="${sesion==null}"></div>
 
+  
+
   <!-- Page Content -->
   <div class="container">
 
@@ -35,7 +37,7 @@
 
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li> 
-      <li class="breadcrumb-item active">Carrito</li> 
+      <li class="breadcrumb-item active"><a th:href="@{/getCart}">Carrito</a></li> 
     </ol>
 
     <!-- Carrito -->

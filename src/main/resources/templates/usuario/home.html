@@ -21,8 +21,11 @@
 <body>
 
   <!-- Navigation -->
-  <div th:replace="~{usuario/template_usuario :: header}" th:if="${sesion == null}"></div>
-  <div th:replace="~{usuario/template_usuario :: header-user}" th:unless="${sesion == null}"></div>
+  <div th:switch="${sesion != null}">
+    <div th:case="true" th:replace="~{usuario/template_usuario :: header-user}"></div>
+    <div th:case="false" th:replace="~{usuario/template_usuario :: header}"></div>
+  </div>
+  
 
   <!-- Page Content -->
   <div class="container">
@@ -37,7 +40,7 @@
     <div class="row text-center">
       <div class="col-lg-3 col-md-6 mb-4" th:each="producto : ${productos}">
         <div class="card h-100">
-          <img class="card-img-top" th:src="@{/images/{img}(img=${producto.imagen})}" alt="">
+          <img class="card-img-top" th:src="@{'/images/' + ${producto.imagen}}" alt="">
           <div class="card-body">
             <p class="card-text" th:text="${producto.nombre}"></p>
           </div>

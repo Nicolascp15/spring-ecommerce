@@ -1,12 +1,17 @@
 package com.curso.ecommerce.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne; 
 import jakarta.persistence.Table;
 @Entity
@@ -22,9 +27,9 @@ public class Orden {
 	private double total;
 	@ManyToOne
 	private Usuario usuario;//variable que servira para identificar cuantos usuarios estan registrados en una orden
-	@OneToOne(mappedBy = "orden")
-	private DetalleOrden detalle;
-	
+	@OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<DetalleOrden> detalle = new ArrayList<>();
+
 	public Orden()
 	{
 		
@@ -89,11 +94,15 @@ public class Orden {
 	}
 	
 
-	public DetalleOrden getDetalle() {
+	
+
+
+
+	public List<DetalleOrden> getDetalle() {
 		return detalle;
 	}
 
-	public void setDetalle(DetalleOrden detalle) {
+	public void setDetalle(List<DetalleOrden> detalle) {
 		this.detalle = detalle;
 	}
 
