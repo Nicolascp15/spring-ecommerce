@@ -20,11 +20,12 @@
 
 <body>
 
-  <!-- Navigation -->
   <div th:switch="${sesion != null}">
     <div th:case="true" th:replace="~{usuario/template_usuario :: header-user}"></div>
     <div th:case="false" th:replace="~{usuario/template_usuario :: header}"></div>
   </div>
+  
+
   
 
   <!-- Page Content -->

@@ -58,9 +58,9 @@ public class AdministradorController {
 	public String detalle(Model model , @PathVariable Integer id)
 	{
 		logg.info("ID de la orden {}",id);
-		Orden orden = ordenService.findById(id).get();
+		Orden orden = ordenService.findById(id).get();//obtener id de la lista 
 		
-		model.addAttribute("detalle", orden.getDetalle());
+		model.addAttribute("detalles", orden.getDetalle());//una vez obtenida la orden mandar las ordenes a la vista  
 		return "administrador/detalleorden";
 	}
 	

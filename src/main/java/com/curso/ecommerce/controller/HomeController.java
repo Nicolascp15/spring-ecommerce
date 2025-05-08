@@ -53,23 +53,35 @@ public class HomeController
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
 	    Object idUsuarioObj = session.getAttribute("idusuario");
+
+	    // Verificar si hay un usuario en la sesión
 	    if (idUsuarioObj == null) {
 	        log.info("No hay sesión activa, redirigiendo a login.");
-	        return "redirect:/usuario/login";
+	        return "redirect:/usuario/login";  // Redirigir si no hay sesión activa
 	    }
 
-	    int idusuario = (int) idUsuarioObj;
-	    log.info("ID del usuario en sesión: " + idusuario);
-	    
-	    Usuario usuario = usuarioService.findbyId(idusuario)
-	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+	    try {
+	        // Convertir el atributo de sesión a int
+	        int idusuario = (int) idUsuarioObj;
+	        log.info("ID del usuario en sesión: " + idusuario);
 
-	    model.addAttribute("usuario", usuario);
-	    model.addAttribute("productos", productoService.findAll());
-	    model.addAttribute("sesion", idusuario);
+	        // Buscar el usuario en la base de datos
+	        Usuario usuario = usuarioService.findbyId(idusuario) 
+	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-	    return "usuario/home";
+	        // Agregar los atributos al modelo
+	        model.addAttribute("usuario", usuario);
+	        model.addAttribute("productos", productoService.findAll());
+	        model.addAttribute("sesion", idusuario);  // Agregar idusuario a sesion para Thymeleaf
+
+	        return "usuario/home";  // Retornar la vista
+	    } catch (RuntimeException e) { 
+	        log.error("Error al obtener el usuario: " + e.getMessage());
+	        // Redirigir a la página de login si no se puede encontrar el usuario
+	        return "redirect:/usuario/login";
+	    }
 	}
+
 
 	
 	//metodo que nos va a llevar desde el boton " ver producto" a la vista producto home 

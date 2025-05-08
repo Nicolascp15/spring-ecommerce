@@ -57,7 +57,7 @@ public class UsuarioController
 		
 		return "usuario/login";
 	}
-	@PostMapping("/acceder")//primero va a ser tipo post para hacer pruebas
+	@PostMapping("/acceder")
 	public String acceder(Usuario usuario,HttpSession session,Model model)
 	{
 		
@@ -84,7 +84,8 @@ public class UsuarioController
 		logger.info("Usuario no existe");
 		}
 			return "redirect:/";
-		}
+	}
+		
 		
 	
 	//metodo que mostrara en la vista todas las compras que hemos hecho con nuestro usuario 
